@@ -37,6 +37,10 @@ export default async function main(client: GenLayerClient<any>) {
       throw new Error(`Deployment failed. Receipt: ${JSON.stringify(receipt)}`);
     }
 
+export default async function main(client: GenLayerClient<any>) {
+  const filePath = path.resolve(process.cwd(), "contracts/football_bets.py");
+
+  try {
     const deployedContractAddress =
       (client.chain as GenLayerChain).id === localnet.id
         ? receipt.data.contract_address
