@@ -9,6 +9,11 @@ import {
 } from "genlayer-js/types";
 import { localnet } from "genlayer-js/chains";
 
+    const deployTransaction = await client.deployContract({
+      code: contractCode,
+      args: [],
+    });
+
 export default async function main(client: GenLayerClient<any>) {
   const filePath = path.resolve(process.cwd(), "contracts/football_bets.py");
 
