@@ -1,65 +1,68 @@
-import { readFileSync } from "fs";
-import path from "path";
-import {
-  TransactionHash,
-  TransactionStatus,
-  GenLayerClient,
-  DecodedDeployData,
-  GenLayerChain,
-} from "genlayer-js/types";
-import { localnet } from "genlayer-js/chains";
+import os
+import shutil
+import json
+from datetime import datetime
 
-    const deployTransaction = await client.deployContract({
-      code: contractCode,
-      args: [],
-    });
+LOG_FILE = "echoforge_log.json"
 
-export default async function main(client: GenLayerClient<any>) {
-  const filePath = path.resolve(process.cwd(), "contracts/football_bets.py");
+def organize(directory):
+    history = []
 
-  try {
-    const contractCode = new Uint8Array(readFileSync(filePath));
+    for filename in os.listdir(directory):
+        path = os.path.join(directory, filename)
 
-    await client.initializeConsensusSmartContract();
+        if os.path.isfile(path):
+            ext = os.path.splitext(filename)[1][1:].lower()
 
-    const deployTransaction = await client.deployContract({
-      code: contractCode,
-      args: [],
-    });
+            if not ext:
+                ext = "others"
 
-export default async function main(client: GenLayerClient<any>) {
-  const filePath = path.resolve(process.cwd(), "contracts/football_bets.py");
-    const deployTransaction = await client.deployContract({
-      code: contractCode,
-      args: [],
-    });
+            target = os.path.join(directory, ext)
 
-    const receipt = await client.waitForTransactionReceipt({
-      hash: deployTransaction as TransactionHash,
-      status: TransactionStatus.ACCEPTED,
-      retries: 200,
-    });
+            os.makedirs(target, exist_ok=True)
 
-    if (
-      receipt.status !== 5 &&
-      receipt.status !== 6 &&
-      receipt.statusName !== "ACCEPTED" &&
-      receipt.statusName !== "FINALIZED"
-    ) {
-      throw new Error(`Deployment failed. Receipt: ${JSON.stringify(receipt)}`);
-    }
+            new_path = os.path.join(target, filename)
+            shutil.move(path, new_path)
 
-export default async function main(client: GenLayerClient<any>) {
-  const filePath = path.resolve(process.cwd(), "contracts/football_bets.py");
+            history.append({
+                "from": path,
+                "to": new_path,
+                "time": datetime.now().isoformat()
+            })
 
-  try {
-    const deployedContractAddress =
-      (client.chain as GenLayerChain).id === localnet.id
-        ? receipt.data.contract_address
-        : (receipt.txDataDecoded as DecodedDeployData)?.contractAddress;
+            print(f"Moved: {filename} -> {ext}/")
 
-    console.log(`Contract deployed at address: ${deployedContractAddress}`);
-  } catch (error) {
-    throw new Error(`Error during deployment:, ${error}`);
-  }
-}
+    with open(LOG_FILE, "w") as f:
+        json.dump(history, f, indent=4)
+
+    print("\nOrganization complete!")
+
+def undo():
+    if not os.path.exists(LOG_FILE):
+        print("No history found.")
+        return
+
+    with open(LOG_FILE, "r") as f:
+        history = json.load(f)
+
+    for item in reversed(history):
+        if os.path.exists(item["to"]):
+            shutil.move(item["to"], item["from"])
+
+    os.remove(LOG_FILE)
+    print("Undo completed!")
+
+if __name__ == "__main__":
+    print("EchoForge")
+    print("1. Organize")
+    print("2. Undo")
+
+    choice = input("Select: ")
+
+    if choice == "1":
+        folder = input("Directory: ")
+        organize(folder)
+    elif choice == "2":
+        undo()
+    else:
+        print("Invalid choice.")
