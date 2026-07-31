@@ -11,15 +11,15 @@ def organize(directory):
     for filename in os.listdir(directory):
         path = os.path.join(directory, filename)
 
+            target = os.path.join(directory, ext)
+
+            os.makedirs(target, exist_ok=True)
         if os.path.isfile(path):
             ext = os.path.splitext(filename)[1][1:].lower()
 
             if not ext:
                 ext = "others"
 
-            target = os.path.join(directory, ext)
-
-            os.makedirs(target, exist_ok=True)
 
             new_path = os.path.join(target, filename)
             shutil.move(path, new_path)
