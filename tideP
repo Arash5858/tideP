@@ -19,7 +19,10 @@ def organize(directory):
 
             if not ext:
                 ext = "others"
+for filename in os.listdir(directory):
+        path = os.path.join(directory, filename)
 
+            target = os.path.join(directory, ext)
 
             new_path = os.path.join(target, filename)
             shutil.move(path, new_path)
